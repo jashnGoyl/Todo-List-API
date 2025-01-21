@@ -1,0 +1,22 @@
+.env
+.factorypath
+# Java build directory
+target/
+build/
+
+# Eclipse specific files
+.metadata/
+*.log
+*.bak
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+*.class
+*.jar
+*.war
+*.ear
+
+.vscode

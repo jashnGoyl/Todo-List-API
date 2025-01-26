@@ -9,14 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
-    
-    @NotBlank(message = "Name is required")
-    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
-    private String name;
+@Builder
+public class LoginRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid Email format")

@@ -10,7 +10,9 @@ public enum ErrorCodeEnum {
     EMAIL_ALREADY_EXISTS(1001, "Email already exists"),
     USER_NOT_FOUND(1002, "User not found"),
     GENERIC_ERROR(1000, "An unexpected error occurred"),
-    VALIDATION_ERROR(10004, "Validation failed");
+    VALIDATION_ERROR(10004, "Validation failed"),
+    INVALID_CREDENTIALS(10004, "Invalid email or password"),
+    AUTHENTICATION_FAILURE(10005, "Authentication failed");
 
     private final int errorCode;
     private final String errorMessage;

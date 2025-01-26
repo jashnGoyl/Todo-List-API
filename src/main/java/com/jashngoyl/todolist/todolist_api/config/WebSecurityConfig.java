@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import com.jashngoyl.todolist.todolist_api.exception.ExceptionHandlerFilter;
 import com.jashngoyl.todolist.todolist_api.security.JwtRequestFilter;
@@ -46,13 +47,13 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless JWT authentication
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/register").permitAll() // Public endpoints
+            .requestMatchers("/register","/login").permitAll() // Public endpoints
             .anyRequest().authenticated() // Secure other endpoints
         )
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless sessions for JWT
         );
-        http.addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(exceptionHandlerFilter, AbstractPreAuthenticatedProcessingFilter.class);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 
         log.info("Implemented SecurityFilterChain method");

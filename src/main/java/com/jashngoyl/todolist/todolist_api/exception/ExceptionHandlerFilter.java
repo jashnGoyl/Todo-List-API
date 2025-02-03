@@ -36,6 +36,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         log.info("Request Path: " + request.getRequestURI()); // Log request path
         try {
             filterChain.doFilter(request, response);
+            log.info("Exiting ExceptionHandlerFilter for request: {}", request.getRequestURI());
         }catch (CustomException ex) {
             log.info("Inside Exception Handler Filter and handling CustomException!!!");
             ErrorResponse errorResponse = ErrorResponse.builder()

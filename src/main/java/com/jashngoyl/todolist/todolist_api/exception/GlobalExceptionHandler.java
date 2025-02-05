@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -88,4 +89,22 @@ public class GlobalExceptionHandler {
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+        public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedExceptions(HttpRequestMethodNotSupportedException ex,
+                        HttpServletRequest httpServletRequest) {
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .errorCode(ErrorCodeEnum.GENERIC_ERROR.getErrorCode())
+                                .errorMessage("HTTP method not supported!!")
+                                .statusCode(HttpStatus.METHOD_NOT_ALLOWED.value())
+                                .httpMethod(httpServletRequest.getMethod())
+                                .timestamp(LocalDateTime.now())
+                                .backendMessage(ex.getMessage())
+                                .details(null)
+                                .build();
+
+                return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
 }

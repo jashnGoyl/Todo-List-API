@@ -37,71 +37,40 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
             log.info("Exiting ExceptionHandlerFilter for request: {}", request.getRequestURI());
-        }catch (CustomException ex) {
+        } catch (CustomException ex) {
             log.info("Inside Exception Handler Filter and handling CustomException!!!");
-            ErrorResponse errorResponse = ErrorResponse.builder()
-                    .errorCode(ex.getErrorCode())
-                    .errorMessage(ex.getMessage())
-                    .statusCode(ex.getStatusCode())
-                    .httpMethod(request.getMethod())
-                    .backendMessage(ex.getBackendMessage())
-                    .timestamp(LocalDateTime.now())
-                    .details(null)
-                    .build();
-
-            log.info("ErrorResponse for CustomException: " + errorResponse);
-
-            response.setStatus(ex.getStatusCode());
-            response.setContentType("application/json");
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-            response.getWriter().flush();
+            handleException(response, request, ex.getErrorCode(), ex.getMessage(), ex.getStatusCode(), ex.getBackendMessage());
         } catch (DataIntegrityViolationException ex) {
-            ErrorResponse errorResponse = ErrorResponse.builder()
-                    .errorCode(DatabaseErrorCodeEnum.CONSTRAINT_VIOLATION.getErrorCode())
-                    .errorMessage(DatabaseErrorCodeEnum.CONSTRAINT_VIOLATION.getErrorMessage())
-                    .backendMessage(ex.getMessage())
-                    .httpMethod(request.getMethod())
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-            response.setContentType("application/json");
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-            response.getWriter().flush();
+            handleException(response, request, DatabaseErrorCodeEnum.CONSTRAINT_VIOLATION.getErrorCode(),
+                    DatabaseErrorCodeEnum.CONSTRAINT_VIOLATION.getErrorMessage(), HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         } catch (CannotCreateTransactionException ex) {
-            ErrorResponse errorResponse = ErrorResponse.builder()
-                    .errorCode(DatabaseErrorCodeEnum.CONNECTION_FAILURE.getErrorCode())
-                    .errorMessage(DatabaseErrorCodeEnum.CONNECTION_FAILURE.getErrorMessage())
-                    .backendMessage(ex.getMessage())
-                    .httpMethod(request.getMethod())
-                    .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setContentType("application/json");
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-            response.getWriter().flush();
-        } catch (Exception e) {
+            handleException(response, request, DatabaseErrorCodeEnum.CONNECTION_FAILURE.getErrorCode(),
+            DatabaseErrorCodeEnum.CONNECTION_FAILURE.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
+        } catch (Exception ex) {
             log.info("Inside Exception Handler Filter!!!");
-            ErrorResponse errorResponse = ErrorResponse.builder()
-                    .errorCode(ErrorCodeEnum.GENERIC_ERROR.getErrorCode())
-                    .errorMessage(ErrorCodeEnum.GENERIC_ERROR.getErrorMessage())
-                    .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .httpMethod(request.getMethod())
-                    .backendMessage(e.getMessage())
-                    .timestamp(LocalDateTime.now())
-                    .details(null)
-                    .build();
-
-            log.info("Error Response for Exception: " + errorResponse);
-
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setContentType("application/json");
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-            response.getWriter().flush();
+            handleException(response, request, ErrorCodeEnum.GENERIC_ERROR.getErrorCode(),
+            ErrorCodeEnum.GENERIC_ERROR.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
         }
+    }
+
+    private void handleException(HttpServletResponse response, HttpServletRequest request, int errorCode,
+            String errorMessage, int statusCode, String backendMessage)
+            throws IOException {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode(errorCode)
+                .errorMessage(errorMessage)
+                .statusCode(statusCode)
+                .httpMethod(request.getMethod())
+                .backendMessage(backendMessage)
+                .timestamp(LocalDateTime.now())
+                .details(null)
+                .build();
+
+        log.info("Error Response: " + errorResponse);
+        response.setStatus(statusCode);
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        response.getWriter().flush();
     }
 
 }

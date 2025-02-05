@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 
 import com.jashngoyl.todolist.todolist_api.exception.ExceptionHandlerFilter;
 import com.jashngoyl.todolist.todolist_api.security.JwtRequestFilter;
+import com.jashngoyl.todolist.todolist_api.service.impl.CustomUserDetailService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,13 +28,18 @@ public class WebSecurityConfig {
 
     private ExceptionHandlerFilter exceptionHandlerFilter;
 
-    public WebSecurityConfig(JwtRequestFilter jwtRequestFilter, ExceptionHandlerFilter exceptionHandlerFilter){
+    private CustomUserDetailService customUserDetailService;
+
+    public WebSecurityConfig(JwtRequestFilter jwtRequestFilter, ExceptionHandlerFilter exceptionHandlerFilter,
+            CustomUserDetailService customUserDetailService) {
+
         this.jwtRequestFilter = jwtRequestFilter;
         this.exceptionHandlerFilter = exceptionHandlerFilter;
+        this.customUserDetailService = customUserDetailService;
     }
 
     @Bean
-    PasswordEncoder passwordEncoder(){
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -44,15 +50,16 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless JWT authentication
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("todo-list/auth/register","todo-list/auth/login").permitAll() // Public endpoints
-            .anyRequest().authenticated() // Secure other endpoints
-        )
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless sessions for JWT
-        );
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("todo-list/auth/register", "todo-list/auth/login").permitAll() // Public endpoints                                                                                                     
+                        .anyRequest().authenticated() // Secure other endpoints
+                )
+                .userDetailsService(customUserDetailService)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless sessions for JWT
+                );
         http.addFilterBefore(exceptionHandlerFilter, AbstractPreAuthenticatedProcessingFilter.class);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 

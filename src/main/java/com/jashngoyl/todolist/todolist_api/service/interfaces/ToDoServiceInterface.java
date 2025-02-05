@@ -5,5 +5,7 @@ import com.jashngoyl.todolist.todolist_api.dto.ToDoResponseDTO;
 
 public interface ToDoServiceInterface {
 
-    public ToDoResponseDTO createToDO(ToDoRequestDTO toDoRequestDTO, String authorizationHeader);
+    public ToDoResponseDTO createToDO(ToDoRequestDTO toDoRequestDTO);
+
+    public ToDoResponseDTO updateToDo(Long id, ToDoRequestDTO toDoRequestDTO);
 }

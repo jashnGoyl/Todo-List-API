@@ -15,11 +15,14 @@ public enum ErrorCodeEnum {
     AUTHENTICATION_FAILURE(10005, "Authentication failed"),
     UNAUTHORIZED(10006, "Unauthorized access. Please provide a valid token."),
 
+    TODO_NOT_FOUND(10007, "To-do item not found"),
+    UNAUTHORIZED_ACTION(10008, "You are not authorized to update this to-do item"),
+
     // JWT Specific Errors
-    TOKEN_EXPIRED(1007, "JWT token has expired"),
-    INVALID_SIGNATURE(1008, "Invalid JWT signature"),
-    INVALID_TOKEN(1009, "Malformed or unsupported JWT token"),
-    TOKEN_MISSING(1010, "JWT token is missing or empty");
+    TOKEN_EXPIRED(2001, "JWT token has expired"),
+    INVALID_SIGNATURE(2002, "Invalid JWT signature"),
+    INVALID_TOKEN(2003, "Malformed or unsupported JWT token"),
+    TOKEN_MISSING(2004, "JWT token is missing or empty");
 
     private final int errorCode;
     private final String errorMessage;

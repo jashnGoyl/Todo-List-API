@@ -38,7 +38,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.userDetailServiceImpl = userDetailServiceImpl;
     }
 
-    @SuppressWarnings("null")
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
@@ -46,7 +45,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             log.info("Inside JWT filter and doFilterInteral method");
             final String authorizationHeader = request.getHeader("Authorization");
 
-            if (authorizationHeader == null) {
+            if (authorizationHeader == null && !(request.getRequestURI().endsWith("login")
+                    || request.getRequestURI().endsWith("register"))) {
                 throw new IllegalArgumentException();
             }
 

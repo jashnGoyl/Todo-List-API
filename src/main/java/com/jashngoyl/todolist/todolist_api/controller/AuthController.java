@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @Slf4j
-@RequestMapping("/todo-list/auth")
+@RequestMapping("/todos/auth")
 public class AuthController {
 
     private ModelMapper modelMapper;

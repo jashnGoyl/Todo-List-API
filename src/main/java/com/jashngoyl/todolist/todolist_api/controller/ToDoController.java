@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/todo-list")
+@RequestMapping("/todos")
 @Slf4j
 public class ToDoController {
 
@@ -34,7 +34,7 @@ public class ToDoController {
         this.toDoServiceImpl = toDoServiceImpl;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ToDoResponse> createToDo(@Valid @RequestBody ToDoRequest toDoRequest){
 
         log.info("Received a TODO request: "+toDoRequest);

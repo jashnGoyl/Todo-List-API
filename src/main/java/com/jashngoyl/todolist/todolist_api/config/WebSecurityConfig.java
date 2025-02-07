@@ -53,7 +53,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless JWT authentication
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("todo-list/auth/register", "todo-list/auth/login").permitAll() // Public endpoints                                                                                                     
+                        .requestMatchers("todos/auth/register", "todos/auth/login").permitAll() // Public endpoints                                                                                                     
                         .anyRequest().authenticated() // Secure other endpoints
                 )
                 .userDetailsService(customUserDetailService)

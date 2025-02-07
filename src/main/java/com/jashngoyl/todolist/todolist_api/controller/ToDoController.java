@@ -3,6 +3,7 @@ package com.jashngoyl.todolist.todolist_api.controller;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -74,5 +75,17 @@ public class ToDoController {
         return responseEntity;
     }
     
+    @DeleteMapping("/{id}")
+    public  ResponseEntity<Object> deleteToDo(@PathVariable Long id){
+        log.info("Recieved id to delete: "+id);
+
+        toDoServiceImpl.deleteToDo(id);
+        log.info("deleted todo.");
+        
+        ResponseEntity<Object> responseEntity = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		log.info("Response Entity: " + responseEntity.getBody());
+
+		return responseEntity;
+    }
 
 }

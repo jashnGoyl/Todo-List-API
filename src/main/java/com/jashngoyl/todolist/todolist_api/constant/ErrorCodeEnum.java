@@ -16,7 +16,7 @@ public enum ErrorCodeEnum {
     UNAUTHORIZED(10006, "Unauthorized access. Please provide a valid token."),
 
     TODO_NOT_FOUND(10007, "To-do item not found"),
-    UNAUTHORIZED_ACTION(10008, "You are not authorized to update this to-do item"),
+    UNAUTHORIZED_ACTION(10008, "You are not authorized to perform any action on this to-do item"),
 
     // JWT Specific Errors
     TOKEN_EXPIRED(2001, "JWT token has expired"),

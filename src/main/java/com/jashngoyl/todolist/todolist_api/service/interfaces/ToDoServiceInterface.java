@@ -8,4 +8,6 @@ public interface ToDoServiceInterface {
     public ToDoResponseDTO createToDO(ToDoRequestDTO toDoRequestDTO);
 
     public ToDoResponseDTO updateToDo(Long id, ToDoRequestDTO toDoRequestDTO);
+
+    public void deleteToDo(Long id);
 }

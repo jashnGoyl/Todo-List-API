@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -91,7 +92,8 @@ public class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-        public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedExceptions(HttpRequestMethodNotSupportedException ex,
+        public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedExceptions(
+                        HttpRequestMethodNotSupportedException ex,
                         HttpServletRequest httpServletRequest) {
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
@@ -105,6 +107,22 @@ public class GlobalExceptionHandler {
                                 .build();
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex,
+                        HttpServletRequest httpServletRequest) {
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .errorCode(ErrorCodeEnum.GENERIC_ERROR.getErrorCode())
+                                .errorMessage("Invalid request body")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .httpMethod(httpServletRequest.getMethod())
+                                .backendMessage(ex.getMessage())
+                                .timestamp(LocalDateTime.now())
+                                .details(null)
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
 }

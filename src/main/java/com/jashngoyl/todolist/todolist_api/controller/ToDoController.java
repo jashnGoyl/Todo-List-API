@@ -1,18 +1,24 @@
 package com.jashngoyl.todolist.todolist_api.controller;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jashngoyl.todolist.todolist_api.dto.GetTodosResponseDTO;
 import com.jashngoyl.todolist.todolist_api.dto.ToDoRequestDTO;
 import com.jashngoyl.todolist.todolist_api.dto.ToDoResponseDTO;
+import com.jashngoyl.todolist.todolist_api.pojo.GetTodosResponse;
 import com.jashngoyl.todolist.todolist_api.pojo.ToDoRequest;
 import com.jashngoyl.todolist.todolist_api.pojo.ToDoResponse;
 import com.jashngoyl.todolist.todolist_api.service.impl.ToDoServiceImpl;
@@ -36,7 +42,6 @@ public class ToDoController {
 
     @PostMapping
     public ResponseEntity<ToDoResponse> createToDo(@Valid @RequestBody ToDoRequest toDoRequest){
-
         log.info("Received a TODO request: "+toDoRequest);
         
         ToDoRequestDTO toDoRequestDTO = modelMapper.map(toDoRequest, ToDoRequestDTO.class);
@@ -76,7 +81,7 @@ public class ToDoController {
     }
     
     @DeleteMapping("/{id}")
-    public  ResponseEntity<Object> deleteToDo(@PathVariable Long id){
+    public ResponseEntity<Object> deleteToDo(@PathVariable Long id){
         log.info("Recieved id to delete: "+id);
 
         toDoServiceImpl.deleteToDo(id);
@@ -86,6 +91,25 @@ public class ToDoController {
 		log.info("Response Entity: " + responseEntity.getBody());
 
 		return responseEntity;
+    }
+
+    @GetMapping
+    public   ResponseEntity<GetTodosResponse> getToDos(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int limit){
+        log.info("Recieved a get request with page: "+page+" and limit: "+limit);
+
+        Pageable pageable = PageRequest.of(page, limit);
+        log.info("pageable: "+pageable);
+
+        GetTodosResponseDTO getTodosResponseDTO = toDoServiceImpl.getToDos(pageable);
+        log.info("Received getTodosResponseDTO in controller: "+getTodosResponseDTO);
+
+        GetTodosResponse getTodosResponse = modelMapper.map(getTodosResponseDTO, GetTodosResponse.class);
+        log.info("Mapped getTodosResponseDTO to POJO: "+getTodosResponse);
+
+        ResponseEntity<GetTodosResponse> responseEntity = new ResponseEntity<GetTodosResponse>(getTodosResponse, HttpStatus.OK);
+        log.info("ResponseEntity: "+responseEntity);
+        
+        return responseEntity;
     }
 
 }

@@ -1,14 +1,16 @@
 package com.jashngoyl.todolist.todolist_api.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.jashngoyl.todolist.todolist_api.dto.GetTodosResponseDTO;
 import com.jashngoyl.todolist.todolist_api.dto.ToDoRequestDTO;
 import com.jashngoyl.todolist.todolist_api.dto.ToDoResponseDTO;
 import com.jashngoyl.todolist.todolist_api.entity.Todo;
 import com.jashngoyl.todolist.todolist_api.entity.User;
 import com.jashngoyl.todolist.todolist_api.repository.ToDoRepository;
-import com.jashngoyl.todolist.todolist_api.repository.UserRepository;
 import com.jashngoyl.todolist.todolist_api.service.ToDoServiceHelper;
 import com.jashngoyl.todolist.todolist_api.service.interfaces.ToDoServiceInterface;
 
@@ -18,15 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ToDoServiceImpl implements ToDoServiceInterface {
 
-        private UserRepository userRepository;
-
         private ToDoRepository toDoRepository;
 
         private ToDoServiceHelper toDoServiceHelper;
 
-        public ToDoServiceImpl(UserRepository userRepository, ToDoRepository toDoRepository,
+        public ToDoServiceImpl(ToDoRepository toDoRepository,
                         ToDoServiceHelper toDoServiceHelper) {
-                this.userRepository = userRepository;
                 this.toDoRepository = toDoRepository;
                 this.toDoServiceHelper = toDoServiceHelper;
         }
@@ -118,5 +117,32 @@ public class ToDoServiceImpl implements ToDoServiceInterface {
 
                 toDoRepository.delete(existingToDo);
                 log.info("Deleted todo: " + existingToDo);
+        }
+
+        @Override
+        public GetTodosResponseDTO getToDos(Pageable pageable) {
+                log.info("Receieved a get request with pageable object: " + pageable);
+
+                UserDetails userDetails = toDoServiceHelper.authenticateUserWithUserDetails();
+                log.info("Recieved user details from helper: " + userDetails);
+
+                String authenticatedUsername = userDetails.getUsername();
+                log.info("authenticated username: " + authenticatedUsername);
+
+                User authenticatedUser = toDoServiceHelper.getAuthenticatedUser(authenticatedUsername);
+                log.info("Authenticated User: " + authenticatedUser);
+
+                Page<Todo> todosPage = toDoRepository.findByUser(authenticatedUser, pageable);
+                log.info("recieved page: " + todosPage);
+
+                GetTodosResponseDTO getTodosResponseDTO = GetTodosResponseDTO.builder()
+                                .data(todosPage.getContent())
+                                .page(todosPage.getNumber())
+                                .limit(todosPage.getSize())
+                                .total((int) todosPage.getNumberOfElements())
+                                .build();
+                log.info("GetResponseDTO: "+getTodosResponseDTO);
+                
+                return getTodosResponseDTO;
         }
 }

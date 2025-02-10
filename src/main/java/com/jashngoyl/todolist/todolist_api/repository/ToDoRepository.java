@@ -9,8 +9,7 @@ import com.jashngoyl.todolist.todolist_api.entity.Todo;
 import com.jashngoyl.todolist.todolist_api.entity.User;
 
 @Repository
-public interface ToDoRepository extends JpaRepository<Todo,Long>{
+public interface ToDoRepository extends JpaRepository<Todo, Long> {
 
-    Page<Todo> findByUser(User user, Pageable pageable);
-
+    Page<Todo> findByUserAndTitleContainingIgnoreCase(User user, String title, Pageable pageable);
 }

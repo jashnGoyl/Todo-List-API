@@ -1,7 +1,9 @@
 package com.jashngoyl.todolist.todolist_api.service.impl;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -120,8 +122,8 @@ public class ToDoServiceImpl implements ToDoServiceInterface {
         }
 
         @Override
-        public GetTodosResponseDTO getToDos(Pageable pageable) {
-                log.info("Receieved a get request with pageable object: " + pageable);
+        public GetTodosResponseDTO getUserTodos(int page, int limit, String sortBy, String direction,
+                        String titleFilter) {
 
                 UserDetails userDetails = toDoServiceHelper.authenticateUserWithUserDetails();
                 log.info("Recieved user details from helper: " + userDetails);
@@ -132,7 +134,15 @@ public class ToDoServiceImpl implements ToDoServiceInterface {
                 User authenticatedUser = toDoServiceHelper.getAuthenticatedUser(authenticatedUsername);
                 log.info("Authenticated User: " + authenticatedUser);
 
-                Page<Todo> todosPage = toDoRepository.findByUser(authenticatedUser, pageable);
+                Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC
+                                : Sort.Direction.ASC;
+                log.info("Sort Direction: " + sortDirection);
+
+                Pageable pageable = PageRequest.of(page, limit, Sort.by(sortDirection, sortBy));
+                log.info("Pageable: " + pageable);
+
+                Page<Todo> todosPage = toDoRepository.findByUserAndTitleContainingIgnoreCase(authenticatedUser,
+                                titleFilter, pageable);
                 log.info("recieved page: " + todosPage);
 
                 GetTodosResponseDTO getTodosResponseDTO = GetTodosResponseDTO.builder()
@@ -141,8 +151,8 @@ public class ToDoServiceImpl implements ToDoServiceInterface {
                                 .limit(todosPage.getSize())
                                 .total((int) todosPage.getNumberOfElements())
                                 .build();
-                log.info("GetResponseDTO: "+getTodosResponseDTO);
-                
+                log.info("GetResponseDTO: " + getTodosResponseDTO);
+
                 return getTodosResponseDTO;
         }
 }

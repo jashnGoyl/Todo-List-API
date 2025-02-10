@@ -1,8 +1,6 @@
 package com.jashngoyl.todolist.todolist_api.controller;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,80 +33,84 @@ public class ToDoController {
 
     private ToDoServiceImpl toDoServiceImpl;
 
-    public ToDoController(ModelMapper modelMapper, ToDoServiceImpl toDoServiceImpl){
+    public ToDoController(ModelMapper modelMapper, ToDoServiceImpl toDoServiceImpl) {
         this.modelMapper = modelMapper;
         this.toDoServiceImpl = toDoServiceImpl;
     }
 
     @PostMapping
-    public ResponseEntity<ToDoResponse> createToDo(@Valid @RequestBody ToDoRequest toDoRequest){
-        log.info("Received a TODO request: "+toDoRequest);
-        
+    public ResponseEntity<ToDoResponse> createToDo(@Valid @RequestBody ToDoRequest toDoRequest) {
+        log.info("Received a TODO request: " + toDoRequest);
+
         ToDoRequestDTO toDoRequestDTO = modelMapper.map(toDoRequest, ToDoRequestDTO.class);
-        log.info("Mapped Todo Request from pojo to DTO: "+toDoRequestDTO);
+        log.info("Mapped Todo Request from pojo to DTO: " + toDoRequestDTO);
 
         ToDoResponseDTO toDoResponseDTO = toDoServiceImpl.createToDO(toDoRequestDTO);
-        log.info("ToDoResponseDTO: "+toDoResponseDTO);
+        log.info("ToDoResponseDTO: " + toDoResponseDTO);
 
         ToDoResponse toDoResponse = modelMapper.map(toDoResponseDTO, ToDoResponse.class);
-        log.info("Mapped the todo response from DTO to pojo: "+toDoResponse);
+        log.info("Mapped the todo response from DTO to pojo: " + toDoResponse);
 
-        ResponseEntity<ToDoResponse> responseEntity = new ResponseEntity<ToDoResponse>(toDoResponse, HttpStatus.CREATED);
-        log.info("ResponseEntity: "+responseEntity);
+        ResponseEntity<ToDoResponse> responseEntity = new ResponseEntity<ToDoResponse>(toDoResponse,
+                HttpStatus.CREATED);
+        log.info("ResponseEntity: " + responseEntity);
 
         return responseEntity;
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ToDoResponse> updateToDo(@PathVariable Long id,@Valid @RequestBody ToDoRequest toDoRequest) {
-        log.info("Recieved id to update ToDo: "+id);
+    public ResponseEntity<ToDoResponse> updateToDo(@PathVariable Long id, @Valid @RequestBody ToDoRequest toDoRequest) {
+        log.info("Recieved id to update ToDo: " + id);
 
-        log.info("Recieved the todo request: "+toDoRequest);
+        log.info("Recieved the todo request: " + toDoRequest);
 
         ToDoRequestDTO toDoRequestDTO = modelMapper.map(toDoRequest, ToDoRequestDTO.class);
-        log.info("Mapped todo request POJO to DTO: "+toDoRequestDTO);
+        log.info("Mapped todo request POJO to DTO: " + toDoRequestDTO);
 
         ToDoResponseDTO toDoResponseDTO = toDoServiceImpl.updateToDo(id, toDoRequestDTO);
-        log.info("Recieved todo response in controller: "+toDoResponseDTO);
+        log.info("Recieved todo response in controller: " + toDoResponseDTO);
 
         ToDoResponse toDoResponse = modelMapper.map(toDoResponseDTO, ToDoResponse.class);
-        log.info("Mapped todo response DTO to POJO: "+toDoResponse);
+        log.info("Mapped todo response DTO to POJO: " + toDoResponse);
 
         ResponseEntity<ToDoResponse> responseEntity = new ResponseEntity<ToDoResponse>(toDoResponse, HttpStatus.OK);
-        log.info("ResponseEntity: "+responseEntity);
-        
+        log.info("ResponseEntity: " + responseEntity);
+
         return responseEntity;
     }
-    
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteToDo(@PathVariable Long id){
-        log.info("Recieved id to delete: "+id);
+    public ResponseEntity<Object> deleteToDo(@PathVariable Long id) {
+        log.info("Recieved id to delete: " + id);
 
         toDoServiceImpl.deleteToDo(id);
         log.info("deleted todo.");
-        
-        ResponseEntity<Object> responseEntity = new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		log.info("Response Entity: " + responseEntity.getBody());
 
-		return responseEntity;
+        ResponseEntity<Object> responseEntity = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        log.info("Response Entity: " + responseEntity.getBody());
+
+        return responseEntity;
     }
 
     @GetMapping
-    public   ResponseEntity<GetTodosResponse> getToDos(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int limit){
-        log.info("Recieved a get request with page: "+page+" and limit: "+limit);
+    public ResponseEntity<GetTodosResponse> getToDos(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "") String titleFilter) {
+        log.info("Recieved a get request with page: " + page + " and limit: " + limit);
 
-        Pageable pageable = PageRequest.of(page, limit);
-        log.info("pageable: "+pageable);
-
-        GetTodosResponseDTO getTodosResponseDTO = toDoServiceImpl.getToDos(pageable);
-        log.info("Received getTodosResponseDTO in controller: "+getTodosResponseDTO);
+        GetTodosResponseDTO getTodosResponseDTO = toDoServiceImpl.getUserTodos(page, limit, sortBy, direction,
+                titleFilter);
+        log.info("Received getTodosResponseDTO in controller: " + getTodosResponseDTO);
 
         GetTodosResponse getTodosResponse = modelMapper.map(getTodosResponseDTO, GetTodosResponse.class);
-        log.info("Mapped getTodosResponseDTO to POJO: "+getTodosResponse);
+        log.info("Mapped getTodosResponseDTO to POJO: " + getTodosResponse);
 
-        ResponseEntity<GetTodosResponse> responseEntity = new ResponseEntity<GetTodosResponse>(getTodosResponse, HttpStatus.OK);
-        log.info("ResponseEntity: "+responseEntity);
-        
+        ResponseEntity<GetTodosResponse> responseEntity = new ResponseEntity<GetTodosResponse>(getTodosResponse,
+                HttpStatus.OK);
+        log.info("ResponseEntity: " + responseEntity);
+
         return responseEntity;
     }
 
